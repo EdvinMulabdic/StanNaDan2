@@ -11,7 +11,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by ajla on 22-Dec-15.
@@ -23,7 +25,6 @@ public class Apartment extends Model {
     public String name;
     public String title;
     public String location;
-    public String neighborhood;
     public String address;
     public Integer price;
     public Integer capacity;
@@ -45,7 +46,6 @@ public class Apartment extends Model {
      * @param name
      * @param title
      * @param location
-     * @param neighborhood
      * @param address
      * @param price
      * @param capacity
@@ -57,13 +57,15 @@ public class Apartment extends Model {
      * @param lat
      * @param lng
      */
-    public Apartment(Integer id, String name, String title,String location, String neighborhood, String address, Integer price, Integer capacity,
+    public Apartment(){
+
+    }
+    public Apartment(Integer id, String name, String title,String location, String address, Integer price, Integer capacity,
                      Integer beds, Integer rooms, Integer area, Integer floor, String description, String lat, String lng, Integer userId, Boolean isVisible) {
         this.id = id;
         this.name = name;
         this.title = title;
         this.location = location;
-        this.neighborhood = neighborhood;
         this.address = address;
         this.price = price;
         this.capacity = capacity;
@@ -85,7 +87,6 @@ public class Apartment extends Model {
                 ", name='" + name + '\'' +
                 ", title='" + title + '\'' +
                 ", location='" + location + '\'' +
-                ", neighborhood='" + neighborhood + '\'' +
                 ", address='" + address + '\'' +
                 ", price=" + price +
                 ", capacity=" + capacity +
@@ -110,14 +111,23 @@ public class Apartment extends Model {
      */
     /* --------------- create apartment ---------------*/
     @Security.Authenticated(Authenticator.AdminFilter.class)
-    public static Apartment createApartment(Integer userId) {
-        Form<Apartment> boundForm = form.bindFromRequest();
-        Apartment apartment = null;
+    public static Apartment createApartment(String name, String title, String location, String address, Integer price, Integer capacity, Integer beds, Integer rooms, Integer area,Integer floor, String description, String lat, String lng, Integer userId) {
+        Apartment apartment = new Apartment();
         try {
-            apartment = boundForm.get();
-            if(!apartment.location.equals("Sarajevo")){
-                apartment.neighborhood = "";
-            }
+            apartment.name = name;
+            apartment.title = title;
+            apartment.location = location;
+            apartment.address = address;
+            apartment.price = price;
+            apartment.capacity = capacity;
+            apartment.beds = beds;
+            apartment.rooms = rooms;
+            apartment.area = area;
+            apartment.floor = floor;
+            apartment.description = description;
+            apartment.lat = lat;
+            apartment.lng = lng;
+
             apartment.userId = userId;
             apartment.isVisible = false;
             apartment.save();
@@ -138,7 +148,6 @@ public class Apartment extends Model {
             String name = boundForm.field("name").value();
             String title = boundForm.field("title").value();
             String location = boundForm.field("location").value();
-            String neighborhood = boundForm.field("neighborhood").value();
             String address = boundForm.field("address").value();
             Integer price = Integer.parseInt(boundForm.field("price").value());
             Integer capacity = Integer.parseInt(boundForm.field("capacity").value());
@@ -153,7 +162,6 @@ public class Apartment extends Model {
             apartment.name = name;
             apartment.title = title;
             apartment.location = location;
-            apartment.neighborhood = neighborhood;
             apartment.address = address;
             apartment.price = price;
             apartment.capacity = capacity;
@@ -408,6 +416,8 @@ public class Apartment extends Model {
 
     public static List<Apartment> apartmentsForHomepage(){
         List<Apartment> apartments = finder.where().eq("isVisible", true).findList();
+        long seed = System.nanoTime();
+        Collections.shuffle(apartments, new Random(seed));
         return apartments;
     }
 

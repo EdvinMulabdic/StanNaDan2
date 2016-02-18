@@ -6,8 +6,9 @@ import helpers.UserAccessLevel;
 import models.Apartment;
 import models.AppUser;
 import models.Reservation;
+import play.data.DynamicForm;
+import play.data.Form;
 import play.mvc.Controller;
-import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
 import views.html.*;
@@ -38,7 +39,23 @@ public class Apartments extends Controller {
     }
     @Security.Authenticated(Authenticator.AdminUserFilter.class)
     public Result createApartment(Integer userId) {
-        Apartment apart = Apartment.createApartment(userId);
+
+        DynamicForm form = Form.form().bindFromRequest();
+        String name = form.field("name").value();
+        String title = form.field("title").value();
+        String location = form.field("location").value();
+        String address = form.field("address").value();
+        Integer price = Integer.parseInt(form.field("price").value());
+        Integer capacity = Integer.parseInt(form.field("capacity").value());
+        Integer beds = Integer.parseInt(form.field("beds").value());
+        Integer rooms = Integer.parseInt( form.field("rooms").value());
+        Integer area = Integer.parseInt(form.field("area").value());
+        Integer floor = Integer.parseInt( form.field("floor").value());
+        String description = form.field("description").value();
+        String lat = form.field("lat").value();
+        String lng = form.field("lng").value();
+
+        Apartment apart = Apartment.createApartment(name,title, location, address, price, capacity, beds,rooms, area, floor, description, lat, lng, userId);
         if (apart != null) {
             flash("success", "Uspješno ste kreirali apartman.");
             return redirect(routes.Apartments.apartment(apart.id));
